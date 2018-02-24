@@ -19,7 +19,7 @@ def signup():
     print("The email addresses are '" + str(email_addresses) + "'")
     return redirect('/')
 
-@app.route('/unregister')
+@app.route('/unregister', methods = ['POST'])
 def unregister():
     # Make sure they've already registered an email address
     if 'email' not in session:
@@ -30,7 +30,8 @@ def unregister():
         return "That address isn't on our list"
     email_addresses.remove(email)
     del session['email'] # Make sure to remove it from the session
-    return 'We have removed ' + email + ' from the list!'
+    # return 'We have removed ' + email + ' from the list!'
+    return redirect('/')
 
 @app.route('/emails.html')
 def emails():
