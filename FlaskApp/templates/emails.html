@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Neighborino's collected email addresses</title>
+  </head>
+  <body>
+    <p>Here are all the emails we have collected:</p>
+    <ul>
+      {% for email in email_addresses %}
+      <li>{{ email }}</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

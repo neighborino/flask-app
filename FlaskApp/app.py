@@ -1,59 +1,40 @@
-from flask import Flask, render_template, request, json
-from flaskext.mysql import MySQL
-from werkzeug import generate_password_hash, check_password_hash
-import json
+from flask import Flask, render_template, request, redirect, session
 
-mysql = MySQL()
 app = Flask(__name__)
+app.secret_key = "b'~\xf3\x0c+\xf0\xedv\x1f\xb4^d\x17\x0c//\xdb\xf7\xea\x10\x80\xa3\x8a(l'"
 
-# MySQL configurations
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = ''
-app.config['MYSQL_DATABASE_DB'] = 'BucketList'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-mysql.init_app(app)
-
+email_addresses = []
 
 @app.route('/')
-def main():
-    return render_template('index.html')
+def hello_world():
+    author="Neighborino"
+    name="valued customer"
+    return render_template("index.html",author=author,name=name)
 
-@app.route('/showSignUp')
-def showSignUp():
-    return render_template('signup.html')
+@app.route('/signup', methods = ['POST'])
+def signup():
+    email = request.form['email']
+    email_addresses.append(email)
+    session['email'] = email
+    print("The email addresses are '" + str(email_addresses) + "'")
+    return redirect('/')
 
+@app.route('/unregister')
+def unregister():
+    # Make sure they've already registered an email address
+    if 'email' not in session:
+        return "You haven't submitted an email!"
+    email = session['email']
+    # Make sure it was already in our address list
+    if email not in email_addresses:
+        return "That address isn't on our list"
+    email_addresses.remove(email)
+    del session['email'] # Make sure to remove it from the session
+    return 'We have removed ' + email + ' from the list!'
 
-@app.route('/signUp',methods=['POST','GET'])
-def signUp():
-    try:
-        _name = request.form['inputName']
-        _email = request.form['inputEmail']
-        _password = request.form['inputPassword']
-
-        # validate the received values
-        if _name and _email and _password:
-
-            # All Good, let's call MySQL
-
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            _hashed_password = generate_password_hash(_password)
-            cursor.callproc('sp_createUser',(_name,_email,_hashed_password))
-            data = cursor.fetchall()
-
-            if len(data) is 0:
-                conn.commit()
-                return json.dumps({'message':'User created successfully !'})
-            else:
-                return json.dumps({'error':str(data[0])})
-        else:
-            return json.dumps({'html':'<span>Enter the required fields</span>'})
-
-    except Exception as e:
-        return json.dumps({'error':str(e)})
-    finally:
-        cursor.close()
-        conn.close()
+@app.route('/emails.html')
+def emails():
+    return render_template('emails.html', email_addresses=email_addresses)
 
 if __name__ == "__main__":
     app.run()

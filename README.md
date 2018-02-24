@@ -16,6 +16,7 @@ virtualenv venv
 source venv/bin/activate
 pip3 install awscli
 pip3 install flask
+pip3 install flask-mysql
 
 <h2>Setting up the database</h2>
 brew install mysql
@@ -30,5 +31,3 @@ CREATE TABLE `BucketList`.`tbl_user` (
   `user_username` VARCHAR(45) NULL,
   `user_password` VARCHAR(45) NULL,
   PRIMARY KEY (`user_id`));
-
-
